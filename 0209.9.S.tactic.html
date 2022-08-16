@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>틱택토 커스텀</title>
+    <style>
+        table {
+          border-collapse: collapse;
+        }
+      
+        td {
+          border: 1px solid black;
+          width: 40px;
+          height: 40px;
+          text-align: center;
+          /* background-color:darkgray; O*/
+          /* background-color:teal; X*/
+          /* background-color:red; Correct*/
+        }   
+        div {
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+    <td id="r99c99" style="display: none;"></td>
+
+    <script>
+        const $table = document.createElement('table');
+        const $result = document.createElement('div');
+        const $body = document.querySelector('body');
+        let correctArr = [];
+        let result = false;
+        let turn = 'O';
+        
+        $result.textContent = `현재 ${turn}의 턴입니다.`;
+
+        const resultCalculator = (event) => {
+            //event.cellIndex-4 ~~ event.cellIndex+4까지 조사 (가로)
+            let correct = 0;
+            let preventBug1 = 0;
+            let preventBug2 = 0;
+            const preventBugF = () => {
+            if (preventBug1 < 0 || preventBug1 > 18 || preventBug2 < 0 || preventBug2 > 18){
+                preventBug1 = 99;
+                preventBug2 = 99;
+            };
+            };
+
+            /* 초안
+            preventBug = event.cellIndex-4;
+            if (preventBug < 1)
+                preventBug = 0;
+            if (preventBug > 24)
+                preventBug = 24;
+            console.log(`#r${event.parentNode.rowIndex}c${event.cellIndex-4}`);
+            const sans = document.querySelector(`#r${event.parentNode.rowIndex}c${event.cellIndex-4}`);
+            console.log(sans.textContent);*/
+            
+            //가로
+            for (let i = -4; i < 5; i++){
+                preventBug1 = event.parentNode.rowIndex
+                preventBug2 = event.cellIndex+i;
+                preventBugF();
+                console.log(`${preventBug1}, ${preventBug2}`)
+                const designate = document.querySelector(`#r${preventBug1}c${preventBug2}`);
+                if (designate.textContent == event.textContent){
+                    correct++;
+                    correctArr.push([preventBug1, preventBug2]);
+                }
+                if (correct == 5){
+                    i = 5;
+                    continue;
+                }
+                if (designate.textContent != event.textContent){
+                    correct = 0;
+                    correctArr = [];
+                }
+            };
+                console.log(correct + " 가로 계산");
+            //세로
+            for (let i = -4; i < 5; i++){
+                preventBug1 = event.parentNode.rowIndex+i
+                preventBug2 = event.cellIndex
+                preventBugF();
+                console.log(`${preventBug1}, ${preventBug2}`)
+                const designate = document.querySelector(`#r${preventBug1}c${preventBug2}`);
+                if (designate.textContent == event.textContent && correct != 5){
+                    correct++;
+                    correctArr.push([preventBug1, preventBug2]);
+                }
+                if (correct == 5){
+                    i = 5;
+                    continue;
+                }
+                if (designate.textContent != event.textContent){
+                    correct = 0;
+                    correctArr = [];
+                }
+            };
+                console.log(correct + " 세로 계산");
+            //대각선 좌->우 상단
+            for (let i = -4; i < 5; i++){
+                preventBug1 = event.parentNode.rowIndex+i
+                preventBug2 = event.cellIndex+i
+                preventBugF();
+                console.log(`${preventBug1}, ${preventBug2}`)
+                const designate = document.querySelector(`#r${preventBug1}c${preventBug2}`);
+                if (designate.textContent == event.textContent && correct != 5){
+                    correctArr.push([preventBug1, preventBug2]);
+                    correct++;
+                }
+                if (correct == 5){
+                    i = 5;
+                    continue;
+                }
+                if (designate.textContent != event.textContent){
+                    correct = 0;
+                    correctArr = [];
+                }
+            };
+                console.log(correct + " 대각선 좌->우 상단 계산");
+            //대각선 좌->우 하단
+            for (let i = -4; i < 5; i++){
+                preventBug1 = event.parentNode.rowIndex-i
+                preventBug2 = event.cellIndex+i
+                preventBugF();
+                console.log(`${preventBug1}, ${preventBug2}`)
+                const designate = document.querySelector(`#r${preventBug1}c${preventBug2}`);
+                if (designate.textContent == event.textContent && correct != 5){
+                    correctArr.push([preventBug1, preventBug2]);
+                    correct++;
+                }
+                if (correct == 5){
+                    i = 5;
+                    continue;
+                };
+                if (designate.textContent != event.textContent){
+                    correct = 0;
+                    correctArr = [];
+                };
+            };
+                console.log(correct + " 대각선 좌->우 하단 계산");
+            if (correct == 5){
+                console.log(`${turn} 승리`)
+                let $correctColor
+                for (let i = 0; i < 5; i++){
+                $correctColor = document.querySelector(`#r${correctArr[i][0]}c${correctArr[i][1]}`)
+                $correctColor.style.backgroundColor = 'red';
+                };
+                alert(`${turn}의 승리!`);
+                return result = true;
+            };
+            return result = false;
+        };
+
+
+        const onClickCallback = (event) => {
+            if (result == false){
+            if(event.target.textContent == ''){
+            event.target.textContent = turn;
+            if(turn === 'O')
+            event.target.style.backgroundColor = 'darkgray';
+            else
+            event.target.style.backgroundColor = 'teal';
+            }
+            else{
+                if (event.target.textContent != turn){
+                    event.target.textContent = '';
+                    event.target.style.backgroundColor = 'white';
+                    turn = (turn === 'O'? 'X': 'O');
+                    $result.textContent = `${turn}가 한 수 물렀습니다. ${turn} 턴입니다.`;
+                    return console.log(`${turn}가 한 수 물렀습니다.`);
+                } else
+                return console.log('빈 칸이 아님');
+            };
+            result = resultCalculator(event.target);
+            turn = (turn === 'O'? 'X': 'O');
+            $result.textContent = `현재 ${turn}의 턴입니다.`;
+            };
+        };
+
+        for (let i = 0; i < 20; i++){ 
+            const $tr = document.createElement('tr');
+            $table.appendChild($tr);
+            if (i == 19){
+                const $td = document.createElement('td');
+                $td.id = `r99c99`;
+                $td.style.display = 'none';
+                $tr.appendChild($td);
+                i = 26
+                continue;
+            };
+            for (let j = 0; j < 19; j++){
+                const $td = document.createElement('td');
+                $td.id = `r${i}c${j}`;
+                $td.addEventListener('click',onClickCallback);
+                $tr.appendChild($td);
+            };
+        }
+        $body.prepend($table,$result);
+
+        
+        
+
+    </script>
+</body>
+</html>
